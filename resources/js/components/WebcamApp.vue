@@ -127,6 +127,112 @@
         </div>
       </div>
 
+      <!-- Advanced Settings Panel -->
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
+            </svg>
+            Advanced Settings
+          </h2>
+          <button
+            @click="showAdvancedSettings = !showAdvancedSettings"
+            class="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 border border-blue-200 rounded hover:bg-blue-50"
+          >
+            {{ showAdvancedSettings ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+
+        <div v-show="showAdvancedSettings" class="space-y-4">
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <p class="text-sm text-gray-600 mb-4">
+              ⚙️ Customize the AI behavior and voice settings. These settings affect both client-side and server-side processing.
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  GPT Model
+                </label>
+                <select
+                  v-model="advancedSettings.gptModel"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="gpt-4o-mini">GPT-4o Mini (Fast & Cheap)</option>
+                  <option value="gpt-4o">GPT-4o (High Quality)</option>
+                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                  <option value="gpt-4">GPT-4 (Legacy)</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Model used for image analysis</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Voice ID
+                </label>
+                <select
+                  v-model="advancedSettings.voiceId"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="pNInz6obpgDQGcFmaJgB">Adam (Male, Warm)</option>
+                  <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female, Calm)</option>
+                  <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female, Strong)</option>
+                  <option value="EXAVITQu4vr4xnSDxMaL">Bella (Female, Soft)</option>
+                  <option value="ErXwobaYiN019PkySvjV">Antoni (Male, Deep)</option>
+                  <option value="MF3mGyEYCl7XYWbV9V6O">Elli (Female, Young)</option>
+                  <option value="TxGEqnHWrfWFTfGW9XjX">Josh (Male, Casual)</option>
+                  <option value="VR6AewLTigWG4xSOukaG">Arnold (Male, Confident)</option>
+                  <option value="pqHfZKP75CvOlQylNhV4">Bill (Male, Documentarian)</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">ElevenLabs voice for speech</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Voice ID
+                </label>
+                <input
+                  v-model="advancedSettings.customVoiceId"
+                  type="text"
+                  placeholder="Enter custom voice ID..."
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                <p class="text-xs text-gray-500 mt-1">Override with custom voice</p>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Custom Prompt
+              </label>
+              <textarea
+                v-model="advancedSettings.promptMessage"
+                rows="3"
+                placeholder="Enter custom prompt for image analysis..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              ></textarea>
+              <p class="text-xs text-gray-500 mt-1">Instructions for how the AI should describe images</p>
+            </div>
+
+            <div class="mt-4 flex space-x-2">
+              <button
+                @click="resetAdvancedSettings"
+                class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50"
+              >
+                Reset to Defaults
+              </button>
+              <button
+                @click="saveAdvancedSettings"
+                class="px-3 py-1 text-sm text-white bg-green-600 hover:bg-green-700 rounded"
+              >
+                Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Interface -->
       <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
         <!-- Webcam Section -->
@@ -294,6 +400,15 @@ const showKeys = ref({
 const persistKeys = ref(false);
 const keyValidationStatus = ref(null);
 
+// Advanced Settings
+const showAdvancedSettings = ref(false);
+const advancedSettings = ref({
+  gptModel: 'gpt-4o-mini',
+  promptMessage: 'Please describe this image in detail. Focus on what you see, including objects, people, activities, colors, and the overall scene. Make it engaging and descriptive as if you\'re helping someone who cannot see the image.',
+  voiceId: 'pNInz6obpgDQGcFmaJgB',
+  customVoiceId: ''
+});
+
 // Computed properties
 const hasValidKeys = computed(() => {
   return userApiKeys.value.openai.trim() !== '' && userApiKeys.value.elevenlabs.trim() !== '';
@@ -380,6 +495,35 @@ const validateKeys = async () => {
       message: `❌ Validation failed: ${error.message}` 
     };
   }
+};
+
+// Advanced Settings Functions
+const saveAdvancedSettings = () => {
+  localStorage.setItem('webcam-assistant-advanced', JSON.stringify(advancedSettings.value));
+  showStatus('Advanced settings saved', 'success');
+};
+
+const loadAdvancedSettings = () => {
+  try {
+    const stored = localStorage.getItem('webcam-assistant-advanced');
+    if (stored) {
+      const settings = JSON.parse(stored);
+      advancedSettings.value = { ...advancedSettings.value, ...settings };
+    }
+  } catch (error) {
+    console.warn('Failed to load advanced settings:', error);
+  }
+};
+
+const resetAdvancedSettings = () => {
+  advancedSettings.value = {
+    gptModel: 'gpt-4o-mini',
+    promptMessage: 'Please describe this image in detail. Focus on what you see, including objects, people, activities, colors, and the overall scene. Make it engaging and descriptive as if you\'re helping someone who cannot see the image.',
+    voiceId: 'pNInz6obpgDQGcFmaJgB',
+    customVoiceId: ''
+  };
+  localStorage.removeItem('webcam-assistant-advanced');
+  showStatus('Settings reset to defaults', 'info');
 };
 
 // Watch for key persistence changes
@@ -478,6 +622,7 @@ const capturePhoto = async () => {
   }
 };
 
+// Updated processPhoto function to use advanced settings
 const processPhoto = async (photo) => {
   if (!hasValidKeys.value) {
     showStatus('Please enter your API keys first', 'error');
@@ -491,8 +636,15 @@ const processPhoto = async (photo) => {
     // Convert data URL to base64
     const base64Data = photo.dataUrl.split(',')[1];
     
+    // Get effective voice ID (custom takes precedence)
+    const effectiveVoiceId = advancedSettings.value.customVoiceId || advancedSettings.value.voiceId;
+    
     // Step 1: Analyze image with OpenAI Vision API (direct from browser)
-    const imageDescription = await analyzeImageWithOpenAI(base64Data);
+    const imageDescription = await analyzeImageWithOpenAI(
+      base64Data, 
+      advancedSettings.value.gptModel, 
+      advancedSettings.value.promptMessage
+    );
     
     if (!imageDescription) {
       throw new Error('Failed to analyze image');
@@ -501,7 +653,7 @@ const processPhoto = async (photo) => {
     processingStatus.value = 'Generating speech with ElevenLabs...';
     
     // Step 2: Convert text to speech with ElevenLabs (direct from browser)
-    const audioBlob = await convertTextToSpeechWithElevenLabs(imageDescription);
+    const audioBlob = await convertTextToSpeechWithElevenLabs(imageDescription, effectiveVoiceId);
     
     if (audioBlob) {
       // Create local URL for audio playback
@@ -522,9 +674,11 @@ const processPhoto = async (photo) => {
   }
 };
 
-// Direct API calls (no server involvement)
-const analyzeImageWithOpenAI = async (base64Data) => {
+// Updated API functions to accept parameters
+const analyzeImageWithOpenAI = async (base64Data, gptModel = 'gpt-4o-mini', promptMessage = null) => {
   try {
+    const prompt = promptMessage || 'Please describe this image in detail. Focus on what you see, including objects, people, activities, colors, and the overall scene. Make it engaging and descriptive as if you\'re helping someone who cannot see the image.';
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -532,14 +686,14 @@ const analyzeImageWithOpenAI = async (base64Data) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: gptModel,
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'Please describe this image in detail. Focus on what you see, including objects, people, activities, colors, and the overall scene. Make it engaging and descriptive as if you\'re helping someone who cannot see the image.'
+                text: prompt
               },
               {
                 type: 'image_url',
@@ -566,10 +720,8 @@ const analyzeImageWithOpenAI = async (base64Data) => {
   }
 };
 
-const convertTextToSpeechWithElevenLabs = async (text) => {
+const convertTextToSpeechWithElevenLabs = async (text, voiceId = 'pNInz6obpgDQGcFmaJgB') => {
   try {
-    const voiceId = 'pNInz6obpgDQGcFmaJgB'; // Adam voice
-    
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
@@ -615,8 +767,9 @@ onMounted(() => {
     showStatus('Webcam access is not supported in this browser', 'error');
   }
   
-  // Load stored API keys
+  // Load stored API keys and advanced settings
   loadKeysFromStorage();
+  loadAdvancedSettings();
 });
 
 onUnmounted(() => {
