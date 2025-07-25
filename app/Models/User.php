@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -43,6 +44,57 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the user's API keys.
+     */
+    public function apiKeys(): HasMany
+    {
+        return $this->hasMany(UserApiKey::class);
+    }
+
+    /**
+     * Get active API keys for the user.
+     */
+    public function activeApiKeys(): HasMany
+    {
+        return $this->apiKeys()->active();
+    }
+
+    /**
+     * Set an API key for a specific service.
+     */
+    public function setApiKey(string $serviceName, string $apiKey): UserApiKey
+    {
+        return UserApiKey::setUserApiKey($this->id, $serviceName, $apiKey);
+    }
+
+    /**
+     * Get an API key for a specific service.
+     */
+    public function getApiKey(string $serviceName): ?string
+    {
+        return UserApiKey::getUserApiKey($this->id, $serviceName);
+    }
+
+    /**
+     * Check if user has a valid API key for a service.
+     */
+    public function hasApiKey(string $serviceName): bool
+    {
+        return $this->getApiKey($serviceName) !== null;
+    }
+
+    /**
+     * Get both OpenAI and ElevenLabs API keys if available.
+     */
+    public function getApiKeys(): array
+    {
+        return [
+            'openai' => $this->getApiKey('openai'),
+            'elevenlabs' => $this->getApiKey('elevenlabs'),
         ];
     }
 }
