@@ -87,24 +87,31 @@ Visit the application and register for a new account:
 
 ### Adding/Updating Keys
 ```
-Dashboard → Manage API Keys → Enter keys → Save
+Dashboard → Manage API Keys → Enter keys → Save All
+OR
+Dashboard → Manage API Keys → Enter individual key → Save (for individual keys)
 ```
 - Keys are validated before saving
 - Previous keys are securely overwritten
 - Changes take effect immediately
+- Both bulk and individual key management supported
 
 ### Testing Keys
 ```
-API Keys Panel → Test Keys button
+API Keys Panel → Test All Keys button (bulk test)
+OR
+API Keys Panel → Test button (individual key test)
 ```
 - Validates connectivity to OpenAI and ElevenLabs
 - Tests actual API endpoints
 - Shows detailed error messages if issues exist
+- Supports testing individual keys or all keys at once
 
 ### Monitoring Usage
-- **Last used timestamps** - See when keys were last accessed
-- **API dashboard links** - Direct links to OpenAI/ElevenLabs usage
 - **Status indicators** - Visual confirmation of key configuration
+- **Real-time validation** - Individual key testing with immediate feedback
+- **Error suggestions** - Context-aware error resolution guidance
+- **API provider dashboards** - Monitor usage directly in OpenAI/ElevenLabs accounts
 
 ### Removing Keys
 ```
@@ -121,8 +128,8 @@ API Keys Panel → Clear Keys button
 ### Custom AI Settings
 - **GPT Model Selection** - Choose from GPT-4o Mini, GPT-4o, GPT-4 Turbo
 - **Custom Prompts** - Personalize how images are described
-- **Voice Selection** - Choose from 9 different ElevenLabs voices
-- **Custom Voice IDs** - Use your own trained voices
+- **Voice Selection** - Choose from 9 different preset ElevenLabs voices or use custom voice IDs
+- **Custom Voice IDs** - Use your own trained voices or any valid ElevenLabs voice ID
 
 ### Performance Options
 - **Model Selection** - Balance speed vs quality based on your needs
@@ -144,10 +151,16 @@ GET  /api/auth/check        - Check authentication status
 
 ### API Key Management (Protected)
 ```
-POST   /api/api-keys         - Store/update encrypted API keys
+POST   /api/api-keys         - Store/update encrypted API keys (bulk)
 GET    /api/api-keys/status  - Get key configuration status
-POST   /api/api-keys/validate - Validate stored keys
+POST   /api/api-keys/validate - Validate stored keys (bulk test)
 DELETE /api/api-keys         - Delete stored keys
+
+# Individual API Key Management
+POST   /api/api-keys/openai     - Store/update individual OpenAI key
+POST   /api/api-keys/elevenlabs - Store/update individual ElevenLabs key
+POST   /api/api-keys/openai/test     - Test individual OpenAI key
+POST   /api/api-keys/elevenlabs/test - Test individual ElevenLabs key
 ```
 
 ### Image Processing (Protected)
@@ -178,20 +191,29 @@ POST /api/process-image-proxy - Process image with user's encrypted keys
 ### Common Issues
 
 #### "Missing API Keys" Error
-- **Solution**: Configure both OpenAI and ElevenLabs keys
+- **Solution**: Configure both OpenAI and ElevenLabs keys using the secure form
 - **Check**: API Keys panel shows both services as "Configured"
+- **Individual setup**: Use individual key save/test buttons for granular control
 
 #### "Authentication Required" Error
-- **Solution**: Login to your account
-- **Check**: Dashboard shows your name and email
+- **Solution**: Login to your account using the authentication form
+- **Check**: Dashboard shows your name and "Manage API Keys" button is visible
 
 #### "API Key Invalid" Error
-- **Solution**: Verify keys in your API provider dashboards
-- **Check**: Use "Test Keys" button to validate connectivity
+- **Solution**: Use individual key testing to identify which key is invalid
+- **Check**: Test each key individually using the "Test" buttons
+- **Fix**: Update the problematic key through the individual key management
 
 #### "Processing Failed" Error
-- **Solution**: Check API key limits and billing status
-- **Check**: Review error messages for specific issues
+- **Solution**: Check the detailed error message for specific guidance
+- **Check**: Look for service-specific error details (OpenAI vs ElevenLabs)
+- **Context**: Use provided error suggestions for resolution steps
+
+#### Quota/Billing Issues
+- **OpenAI quota exceeded**: Add credits or wait for quota reset
+- **ElevenLabs character limit**: Upgrade plan or wait for reset
+- **Rate limiting**: Wait before making additional requests
+- **Instant voice cloning**: Requires paid ElevenLabs subscription
 
 ### Performance Issues
 - **Slow processing** - Try GPT-4o Mini model for faster responses
@@ -255,3 +277,26 @@ For technical issues or security questions:
 - **Test connectivity** using built-in validation tools
 
 This backend proxy architecture provides enterprise-grade security while maintaining ease of use and cost transparency. Your API keys are protected with industry-standard encryption, and all processing happens securely on our backend infrastructure. 
+
+---
+
+## 🛡️ Enhanced Error Handling
+
+### Intelligent Error Detection
+- **Service-specific errors** - Differentiated OpenAI vs ElevenLabs error handling
+- **Error type classification** - Quota exceeded, rate limits, invalid keys, etc.
+- **Contextual suggestions** - Specific guidance for each error type
+
+### Real-time Validation
+- **Individual key testing** - Test OpenAI and ElevenLabs keys separately
+- **Bulk validation** - Test all configured keys simultaneously  
+- **Immediate feedback** - Visual status indicators for each service
+- **Detailed error messages** - Clear explanations of API issues
+
+### Error Resolution Guidance
+- **Quota exceeded** - Billing and upgrade guidance
+- **Rate limiting** - Wait time recommendations
+- **Invalid keys** - Key configuration help
+- **Service outages** - Alternative approaches
+
+--- 

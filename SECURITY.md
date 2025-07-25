@@ -37,6 +37,8 @@ User → Backend Authentication → Encrypted Key Storage → Backend Proxy → 
 - **Zero frontend exposure** - API keys never sent to or stored in the browser
 - **Secure key access** - Keys only decrypted server-side when needed for API calls
 - **User-specific storage** - Each user manages their own encrypted API keys
+- **Individual key management** - Granular control over OpenAI and ElevenLabs keys separately
+- **Real-time validation** - Individual service connectivity testing with detailed feedback
 
 ### 🚫 Attack Surface Mitigation
 - **No client-side API keys** - Eliminates risk of key exposure in browser/network
@@ -116,6 +118,65 @@ public function processImageProxy(Request $request): JsonResponse
 }
 ```
 
+### Enhanced Error Handling
+
+The implementation includes sophisticated error handling with service-specific error detection and contextual guidance:
+
+```php
+// Individual API key validation with detailed feedback
+public function testOpenAI(Request $request): JsonResponse
+{
+    $user = Auth::user();
+    
+    if (!$user->hasApiKey('openai')) {
+        return response()->json([
+            'success' => false,
+            'message' => 'OpenAI API key not configured'
+        ], 400);
+    }
+    
+    try {
+        $openaiKey = $user->getApiKey('openai');
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $openaiKey,
+        ])->timeout(10)->get('https://api.openai.com/v1/models');
+        
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'OpenAI API key is valid',
+                'service' => 'openai'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'OpenAI API key is invalid or expired',
+                'service' => 'openai',
+                'http_status' => $response->status()
+            ], 400);
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'OpenAI API key validation failed: ' . $e->getMessage(),
+            'service' => 'openai'
+        ], 500);
+    }
+}
+```
+
+#### Error Classification and Response
+- **Service-specific errors** - Differentiated handling for OpenAI vs ElevenLabs issues
+- **Structured error responses** - Consistent JSON format with error categorization
+- **Contextual guidance** - Specific resolution steps for each error type
+- **HTTP status mapping** - Appropriate status codes for different error scenarios
+
+#### Real-time Validation Features
+- **Individual key testing** - Test OpenAI and ElevenLabs connectivity separately
+- **Bulk validation** - Test all configured keys simultaneously with aggregated results
+- **Immediate feedback** - Visual status indicators and detailed error messages
+- **Service isolation** - Identify which specific service has configuration issues
+
 ## Security Benefits
 
 ### Compared to Client-Side API Calls
@@ -132,10 +193,13 @@ public function processImageProxy(Request $request): JsonResponse
 
 ### Enterprise Security Features
 - **Multi-tenant isolation** - Each user's data and keys completely isolated
-- **Centralized key management** - Admin visibility into key usage patterns
+- **Granular key management** - Individual and bulk API key operations
+- **Real-time validation** - Individual service testing with immediate feedback
+- **Enhanced error handling** - Service-specific error detection and resolution guidance
 - **Compliance ready** - Audit trails and encrypted storage for SOC 2 compliance
 - **Scalable architecture** - Backend proxy scales with load balancing
 - **Monitoring capabilities** - Server-side logging and metrics
+- **Backward compatibility** - Legacy route support for smooth migrations
 
 ## API Endpoints
 
@@ -148,18 +212,47 @@ GET  /api/auth/user         - Get current user
 GET  /api/auth/check        - Check auth status
 ```
 
-### API Key Management
+### API Key Management (Protected)
 ```
-POST   /api/api-keys         - Store/update encrypted API keys
+# Bulk API Key Management
+POST   /api/api-keys         - Store/update encrypted API keys (bulk)
 GET    /api/api-keys/status  - Get key configuration status
-POST   /api/api-keys/validate - Validate stored keys
+POST   /api/api-keys/validate - Validate stored keys (bulk test)
 DELETE /api/api-keys         - Delete stored keys
+
+# Individual API Key Management
+POST   /api/api-keys/openai     - Store/update individual OpenAI key
+POST   /api/api-keys/elevenlabs - Store/update individual ElevenLabs key
+POST   /api/api-keys/openai/test     - Test individual OpenAI key connectivity
+POST   /api/api-keys/elevenlabs/test - Test individual ElevenLabs key connectivity
 ```
 
 ### Image Processing (Protected)
 ```
 POST /api/process-image-proxy - Process image with user's encrypted keys
 ```
+
+### Legacy Compatibility Routes
+```
+POST /api/process-image        - Legacy image processing endpoint
+POST /api/process-image-server - Legacy server-key processing endpoint
+POST /api/validate-api-keys    - Legacy API key validation endpoint
+```
+
+## Backward Compatibility & Migration
+
+### Legacy Route Support
+The application maintains backward compatibility with previous implementations through legacy routes:
+- **Graceful migration** - Existing integrations continue to work during transitions
+- **Deprecation notices** - Clear communication about preferred endpoints
+- **Feature parity** - Legacy routes maintain core functionality while encouraging migration
+- **Security maintained** - All legacy routes include the same security protections
+
+### Migration Strategy
+- **Phased migration** - Gradual transition from legacy to enhanced endpoints
+- **Version coexistence** - Both old and new endpoints available during transition periods
+- **Enhanced features** - New endpoints provide additional capabilities while maintaining compatibility
+- **Documentation clarity** - Clear guidance on migration paths and timeline
 
 ## Security Best Practices
 
@@ -217,6 +310,11 @@ POST /api/process-image-proxy - Process image with user's encrypted keys
 - [x] HTTPS enforcement
 - [x] Database query parameterization
 - [x] Error handling without information disclosure
+- [x] Individual API key management capabilities
+- [x] Real-time service connectivity validation
+- [x] Service-specific error handling and guidance
+- [x] Backward compatibility with security maintained
+- [x] Granular key testing and validation endpoints
 
 ## Threat Model
 
@@ -240,9 +338,12 @@ POST /api/process-image-proxy - Process image with user's encrypted keys
 ### Monitoring Capabilities
 - **Authentication attempts** - Failed login tracking
 - **API key usage** - Per-user usage patterns and anomalies
-- **Error rates** - API call success/failure monitoring
+- **Individual service monitoring** - Separate tracking for OpenAI and ElevenLabs usage
+- **Error rates** - API call success/failure monitoring with service-specific breakdowns
 - **Performance metrics** - Response times and throughput
 - **Security events** - Suspicious activity detection
+- **Validation tracking** - API key testing frequency and success rates
+- **Legacy endpoint usage** - Migration progress monitoring
 
 ### Incident Response
 1. **Detection** - Automated monitoring and alerting
