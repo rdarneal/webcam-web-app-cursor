@@ -19,16 +19,27 @@ export default defineConfig({
     ],
     server: {
         host: 'localhost',
-        port: 5174,  // Changed from 5173 to 5174
+        port: 5174,
         https: false,
         hmr: {
             host: 'localhost',
-            port: 5174,  // Changed from 5173 to 5174
+            port: 5174,
         },
     },
     resolve: {
         alias: {
             vue: 'vue/dist/vue.esm-bundler.js',
+        },
+    },
+    test: {
+        environment: 'jsdom',
+        globals: true,
+        setupFiles: ['./tests/frontend/setup.js'],
+        include: ['tests/frontend/**/*.{test,spec}.{js,ts}'],
+        coverage: {
+            reporter: ['text', 'json', 'html'],
+            include: ['resources/js/**/*'],
+            exclude: ['node_modules/', 'tests/'],
         },
     },
 });
