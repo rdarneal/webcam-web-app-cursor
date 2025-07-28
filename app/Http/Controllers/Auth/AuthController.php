@@ -49,6 +49,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'avatar' => $user->avatar,
                 ]
             ], 201);
 
@@ -93,6 +94,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'avatar' => $user->avatar,
                     'has_openai_key' => $user->hasApiKey('openai'),
                     'has_elevenlabs_key' => $user->hasApiKey('elevenlabs'),
                 ]
@@ -141,6 +143,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'avatar' => $user->avatar,
                 'has_openai_key' => $user->hasApiKey('openai'),
                 'has_elevenlabs_key' => $user->hasApiKey('elevenlabs'),
             ]
@@ -160,6 +163,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'avatar' => $user->avatar,
                     'has_openai_key' => $user->hasApiKey('openai'),
                     'has_elevenlabs_key' => $user->hasApiKey('elevenlabs'),
                 ]

@@ -5,12 +5,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImageProcessingController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ApiKeyController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 
 // Public authentication routes - need web middleware for CSRF and sessions
 Route::middleware(['web'])->prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/check', [AuthController::class, 'check']);
+    
+    // Google OAuth routes
+    Route::get('/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+    Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 });
 
 // Protected authentication routes (using custom API auth middleware)
