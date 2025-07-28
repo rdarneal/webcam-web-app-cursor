@@ -300,3 +300,196 @@ This backend proxy architecture provides enterprise-grade security while maintai
 - **Service outages** - Alternative approaches
 
 --- 
+
+---
+
+## 🔑 Google OAuth Setup (Optional)
+
+The application supports Google OAuth authentication as an alternative to traditional email/password registration. This allows users to sign in with their Google accounts for a streamlined experience.
+
+### Benefits of Google OAuth
+- **Simplified registration** - No need to create separate passwords
+- **Enhanced security** - Leverages Google's robust authentication system
+- **User convenience** - Single sign-on experience
+- **Profile integration** - Automatically imports name and avatar from Google
+
+### Step 1: Create Google Cloud Project
+1. **Visit Google Cloud Console**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Sign in with your Google account
+
+2. **Create a New Project**
+   - Click "Select a project" dropdown at the top
+   - Click "New Project"
+   - Enter project name (e.g., "Webcam Assistant")
+   - Click "Create"
+
+3. **Enable Google+ API**
+   - In the left sidebar, go to "APIs & Services" → "Library"
+   - Search for "Google+ API" or "Google Identity"
+   - Click on "Google+ API" and click "Enable"
+
+### Step 2: Configure OAuth Consent Screen
+1. **Go to OAuth Consent Screen**
+   - In the left sidebar, go to "APIs & Services" → "OAuth consent screen"
+
+2. **Choose User Type**
+   - Select "External" for public applications
+   - Click "Create"
+
+3. **Fill Required Information**
+   - **App name**: Your application name (e.g., "Smart Webcam Assistant")
+   - **User support email**: Your email address
+   - **App logo**: Optional - upload your app logo
+   - **App domain**: Your domain (for local development, you can skip this)
+   - **Authorized domains**: Add your domain (for local development, you can skip this)
+   - **Developer contact information**: Your email address
+   - Click "Save and Continue"
+
+4. **Configure Scopes** (optional for basic setup)
+   - Click "Save and Continue" to skip for now
+
+5. **Add Test Users** (for development)
+   - Add email addresses that will be allowed to test the OAuth flow
+   - Click "Save and Continue"
+
+### Step 3: Create OAuth 2.0 Credentials
+1. **Go to Credentials**
+   - In the left sidebar, go to "APIs & Services" → "Credentials"
+
+2. **Create Credentials**
+   - Click "+ Create Credentials" at the top
+   - Select "OAuth 2.0 Client IDs"
+
+3. **Configure Application Type**
+   - **Application type**: Web application
+   - **Name**: Give it a descriptive name (e.g., "Webcam App OAuth")
+
+4. **Set Authorized Redirect URIs**
+   - Click "Add URI" under "Authorized redirect URIs"
+   - Add: `http://127.0.0.1:8000/auth/google/callback`
+   - For production: `https://yourdomain.com/auth/google/callback`
+   - Click "Create"
+
+5. **Save Your Credentials**
+   - Copy the **Client ID** and **Client Secret**
+   - Store them securely - you'll need these for your `.env` file
+
+### Step 4: Configure Environment Variables
+Add the following variables to your `.env` file:
+
+```bash
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_REDIRECT_URL=http://127.0.0.1:8000/auth/google/callback
+```
+
+**Important Notes:**
+- Replace `your_google_client_id_here` with your actual Client ID
+- Replace `your_google_client_secret_here` with your actual Client Secret
+- For production, update `GOOGLE_REDIRECT_URL` to use your domain and HTTPS
+
+### Step 5: Install Dependencies (if needed)
+The application requires Laravel Socialite for OAuth functionality:
+
+```bash
+composer require laravel/socialite
+```
+
+### Step 6: Test Google OAuth
+1. **Start the development server**:
+   ```bash
+   php artisan serve
+   ```
+
+2. **Visit the application**:
+   - Go to `http://127.0.0.1:8000`
+   - Click "Login with Google"
+   - Complete the Google OAuth flow
+   - Verify successful login and account creation
+
+### Production Configuration
+
+#### Domain Setup
+For production deployment:
+
+1. **Update OAuth consent screen**
+   - Add your production domain to authorized domains
+   - Update app domain information
+
+2. **Update redirect URIs**
+   - Add production callback URL: `https://yourdomain.com/auth/google/callback`
+   - Remove development URLs for security
+
+3. **Environment variables**
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   GOOGLE_REDIRECT_URL=https://yourdomain.com/auth/google/callback
+   ```
+
+#### Security Considerations
+- **Use HTTPS** in production for OAuth callbacks
+- **Restrict domains** in Google Cloud Console to your actual domains
+- **Monitor OAuth usage** in Google Cloud Console
+- **Rotate secrets** periodically for enhanced security
+
+### Troubleshooting
+
+#### Common Issues
+
+**"OAuth Error: redirect_uri_mismatch"**
+- **Solution**: Ensure the redirect URI in Google Cloud Console exactly matches your `GOOGLE_REDIRECT_URL`
+- **Check**: URLs must match exactly (including http/https, port numbers, and paths)
+
+**"This app isn't verified"**
+- **Solution**: This is normal for development. Click "Advanced" → "Go to App Name (unsafe)"
+- **Production**: Submit your app for Google verification if needed
+
+**"Access blocked: This app's request is invalid"**
+- **Solution**: Check that Google+ API is enabled in your Google Cloud project
+- **Check**: Verify OAuth consent screen is properly configured
+
+**User data not saving properly**
+- **Solution**: Check database migrations are run: `php artisan migrate`
+- **Check**: Verify User model has google_id and avatar fields
+
+#### Development vs Production
+
+**Development**
+- Can use localhost URLs
+- "Unverified app" warnings are normal
+- Test with limited user accounts
+
+**Production**
+- Must use HTTPS
+- Should complete app verification for public use
+- Can support unlimited users
+
+### Integration Details
+
+The Google OAuth implementation includes:
+
+#### Database Schema
+```sql
+-- User table includes Google OAuth fields
+google_id VARCHAR(255) NULLABLE
+avatar VARCHAR(255) NULLABLE
+```
+
+#### OAuth Flow
+1. **User clicks "Login with Google"**
+2. **Redirect to Google** (`/api/auth/google/redirect`)
+3. **Google authentication** (handled by Google)
+4. **Callback processing** (`/auth/google/callback`)
+5. **User creation/login** (automatic account linking)
+6. **Session establishment** (standard Laravel auth)
+
+#### User Experience
+- **New users**: Account created automatically with Google profile information
+- **Existing users**: Linked to existing account by email address
+- **Profile data**: Name and avatar imported from Google
+- **API keys**: Must still be configured after OAuth login
+
+This Google OAuth integration provides a seamless authentication experience while maintaining the secure backend proxy architecture for API key management. 

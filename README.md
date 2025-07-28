@@ -80,6 +80,21 @@ php artisan storage:link
 php artisan db:seed
 ```
 
+### 2.5. Optional: Enable Google OAuth Authentication
+For users who want to login with Google instead of creating accounts manually:
+
+1. **Set up Google Cloud Project** (see detailed instructions in API_SETUP.md)
+2. **Add environment variables** to your `.env` file:
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   GOOGLE_REDIRECT_URL=http://127.0.0.1:8000/auth/google/callback
+   ```
+3. **Install Laravel Socialite** (if not already installed):
+   ```bash
+   composer require laravel/socialite
+   ```
+
 ### 3. Frontend Dependencies
 ```bash
 # Install and build frontend assets
@@ -100,8 +115,9 @@ Open `http://127.0.0.1:8000` in your browser
 ### Initial Setup
 1. **Register an Account** or **Login**
    - Visit `http://127.0.0.1:8000`
-   - Click "Register" to create a new account
-   - Or use test account: `test@example.com` / `password` (if seeded)
+   - **Option A**: Click "Register" to create a new account with email/password
+   - **Option B**: Click "Login with Google" for OAuth authentication
+   - **Option C**: Use test account: `test@example.com` / `password` (if seeded)
 
 2. **Configure API Keys**
    - After login, click "Manage API Keys"
